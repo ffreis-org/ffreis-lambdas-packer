@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -31,7 +32,7 @@ func main() {
 func run(args []string) int {
 	opts, err := parseArgs(args)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		writeLine(os.Stderr, err.Error())
 		return 2
 	}
 
@@ -39,26 +40,26 @@ func run(args []string) int {
 
 	awsCfg, err := loadAWSConfig(ctx, opts.region)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to load AWS config: %v\n", err)
+		writeErrorLine(os.Stderr, "failed to load AWS config: ", err)
 		return 1
 	}
 
 	prefix, err := packer.NormalizePrefix(opts.prefix)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		writeLine(os.Stderr, err.Error())
 		return 2
 	}
 
 	local, err := packer.DiscoverLocalArtifacts(opts.artifactDir, prefix)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "artifact discovery failed: %v\n", err)
+		writeErrorLine(os.Stderr, "artifact discovery failed: ", err)
 		return 1
 	}
 
 	s3Client := s3.NewFromConfig(awsCfg)
 	remote, err := packer.ListRemoteZips(ctx, s3Client, opts.bucket, prefix)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed listing s3://%s/%s: %v\n", opts.bucket, prefix, err)
+		writeErrorLine(os.Stderr, "failed listing s3://"+opts.bucket+"/"+prefix+": ", err)
 		return 1
 	}
 
@@ -71,16 +72,16 @@ func run(args []string) int {
 
 	for _, a := range plan.Uploads {
 		if err := packer.PutArtifact(ctx, s3Client, opts.bucket, a); err != nil {
-			fmt.Fprintf(os.Stderr, "upload failed for %s: %v\n", a.Key, err)
+			writeErrorLine(os.Stderr, "upload failed for "+a.Key+": ", err)
 			return 1
 		}
 	}
 	if err := packer.DeleteKeys(ctx, s3Client, opts.bucket, plan.Deletes); err != nil {
-		fmt.Fprintf(os.Stderr, "delete failed: %v\n", err)
+		writeErrorLine(os.Stderr, "delete failed: ", err)
 		return 1
 	}
 
-	fmt.Printf("done: uploaded=%d deleted=%d\n", len(plan.Uploads), len(plan.Deletes))
+	writeLine(os.Stdout, "done: uploaded="+strconv.Itoa(len(plan.Uploads))+" deleted="+strconv.Itoa(len(plan.Deletes)))
 	return 0
 }
 
@@ -121,9 +122,17 @@ func printPlan(plan packer.Plan, bucket, prefix string, dryRun bool) {
 	if dryRun {
 		mode = modeDryRun
 	}
-	fmt.Printf("%s (%s)\n", cliName, mode)
-	fmt.Printf("%s: %s\n", labelBucket, bucket)
-	fmt.Printf("%s: %s\n", labelPrefix, prefix)
-	fmt.Printf("uploads: %d\n", len(plan.Uploads))
-	fmt.Printf("deletes: %d\n", len(plan.Deletes))
+	writeLine(os.Stdout, cliName+" ("+mode+")")
+	writeLine(os.Stdout, labelBucket+": "+bucket)
+	writeLine(os.Stdout, labelPrefix+": "+prefix)
+	writeLine(os.Stdout, "uploads: "+strconv.Itoa(len(plan.Uploads)))
+	writeLine(os.Stdout, "deletes: "+strconv.Itoa(len(plan.Deletes)))
+}
+
+func writeLine(w io.Writer, line string) {
+	_, _ = io.WriteString(w, line+"\n") //nolint:errcheck // writing to stdout/stderr is best-effort
+}
+
+func writeErrorLine(w io.Writer, prefix string, err error) {
+	writeLine(w, prefix+err.Error())
 }

@@ -202,7 +202,7 @@ func PutArtifact(ctx context.Context, client s3PutDeleteClient, bucket string, a
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer f.Close() //nolint:errcheck // read-only file; close errors are not actionable
 		_, err = client.PutObject(ctx, &s3.PutObjectInput{
 			Bucket:      aws.String(bucket),
 			Key:         aws.String(a.Key),
@@ -218,19 +218,16 @@ func PutArtifact(ctx context.Context, client s3PutDeleteClient, bucket string, a
 }
 
 func putZippedRaw(ctx context.Context, client s3PutDeleteClient, bucket, key, rawPath string) error {
-	rawFile, err := os.Open(rawPath)
+	rawFile, err := os.Open(rawPath) //nolint:gosec // rawPath is a trusted artifact path from the configured artifact directory
 	if err != nil {
 		return err
 	}
-	defer rawFile.Close()
+	defer rawFile.Close() //nolint:errcheck // read-only file; close errors are not actionable
 
 	pr, pw := io.Pipe()
 	zw := zip.NewWriter(pw)
 
 	go func() {
-		defer pw.Close()
-		defer zw.Close()
-
 		entryName := filepath.Base(rawPath)
 		w, err := zw.Create(entryName)
 		if err != nil {
@@ -241,6 +238,11 @@ func putZippedRaw(ctx context.Context, client s3PutDeleteClient, bucket, key, ra
 			_ = pw.CloseWithError(err)
 			return
 		}
+		if err := zw.Close(); err != nil {
+			_ = pw.CloseWithError(err)
+			return
+		}
+		_ = pw.Close() //nolint:errcheck // close after successful transfer; error is unactionable
 	}()
 
 	_, err = client.PutObject(ctx, &s3.PutObjectInput{
@@ -270,7 +272,6 @@ func deleteObjects(ctx context.Context, client s3PutDeleteClient, bucket string,
 	}
 	var objs []types.ObjectIdentifier
 	for _, k := range keys {
-		k := k
 		objs = append(objs, types.ObjectIdentifier{Key: &k})
 	}
 
