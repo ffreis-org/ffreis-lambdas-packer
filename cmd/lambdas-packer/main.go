@@ -130,7 +130,7 @@ func printPlan(plan packer.Plan, bucket, prefix string, dryRun bool) {
 }
 
 func writeLine(w io.Writer, line string) {
-	_, _ = io.WriteString(w, line+"\n") //nolint:errcheck // writing to stdout/stderr is best-effort
+	_, _ = io.WriteString(w, line+"\n") //nolint:errcheck // best-effort: stdout/stderr write failures (e.g. broken pipe) are intentionally ignored
 }
 
 func writeErrorLine(w io.Writer, prefix string, err error) {

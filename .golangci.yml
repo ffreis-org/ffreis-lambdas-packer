@@ -52,7 +52,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/felipefuhr
+        - github.com/ffreis
 
 issues:
   max-issues-per-linter: 0
