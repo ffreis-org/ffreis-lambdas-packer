@@ -18,6 +18,7 @@ permissions:
 
 jobs:
   sonar:
+    timeout-minutes: 30
     name: SonarCloud
     runs-on: ubuntu-latest
     # Set repository variable SONAR_ENABLED=false to skip this job entirely.
