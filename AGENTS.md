@@ -15,7 +15,7 @@ the prefix).
 
 - **Idempotent.** Safe to re-run. Unchanged artifacts are skipped (content hash check).
 
-- **Used by `ffreis-website-lambdas-rust`** via `make upload` (either as Go binary or
+- **Used by private website Lambda repos** via `make upload` (either as Go binary or
   via Docker using `CONTAINER_RUNTIME`).
 
 - **Used by `platform-shared-infra`** to manage Lambda artifact packages for the
@@ -30,6 +30,14 @@ go run ./cmd/lambdas-packer \
   --artifact-dir ./lambdas/target/lambda \
   --dry-run
 ```
+
+## Public repo — private-repo hygiene
+
+This is a **public** GitHub repository. When writing commit messages, PR titles,
+PR descriptions, or any other user-visible text, **never name private repos** —
+website content, inventory, infra, Lambda, or data repos that are not publicly
+listed. Use generic terms instead: "the fleet inventory", "a private consumer",
+"internal infra", "private data repo", etc.
 
 ## Keeping this file current
 
