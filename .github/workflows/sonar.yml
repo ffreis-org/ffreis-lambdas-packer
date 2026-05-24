@@ -13,13 +13,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
   sonar:
     name: SonarCloud
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     # Set repository variable SONAR_ENABLED=false to skip this job entirely.
     # Default: runs. If SONAR_TOKEN is missing, fails explicitly with instructions.
     #

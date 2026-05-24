@@ -8,9 +8,6 @@ on:
       - ".github/workflows/shellcheck.yml"
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -18,6 +15,8 @@ concurrency:
 jobs:
   shellcheck:
     name: shellcheck
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-shellcheck.yml@01e2b12e992621fecf074b8a202f66044196f3bf
     with:
       working-directory: .
