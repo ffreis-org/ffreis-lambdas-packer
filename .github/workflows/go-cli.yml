@@ -22,22 +22,25 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
   fmt:
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-fmt.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     with:
       working-directory: .
 
   lint:
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-lint.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     needs: [fmt]
     with:
       working-directory: .
 
   test:
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-test.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     needs: [fmt]
     with:
@@ -46,12 +49,16 @@ jobs:
       coverage-artifact-name: lambdas-packer-coverage
 
   build:
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-build.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     needs: [fmt]
     with:
       working-directory: .
 
   coverage:
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-coverage.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     needs: [test]
     with:
@@ -59,6 +66,8 @@ jobs:
       coverage-threshold: 0
 
   docs:
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-docs.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     needs: [fmt]
     with:
@@ -66,11 +75,19 @@ jobs:
       require-package-docs: true
 
   security:
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-security.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     with:
       working-directory: .
 
   semgrep:
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
     uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-semgrep.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
     with:
       working-directory: .
