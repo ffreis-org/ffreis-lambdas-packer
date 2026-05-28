@@ -23,6 +23,7 @@ the prefix).
 
 ## Build/run
 
+**Sync mode** (Rust/Go multi-Lambda artifact directory):
 ```bash
 go run ./cmd/lambdas-packer \
   --bucket my-bucket \
@@ -30,6 +31,15 @@ go run ./cmd/lambdas-packer \
   --artifact-dir ./lambdas/target/lambda \
   --dry-run
 ```
+
+**Single-file mode** (Python/pre-built zip, e.g. `monitor_evaluator.zip`):
+```bash
+go run ./cmd/lambdas-packer \
+  --bucket my-bucket \
+  --file dist/monitor_evaluator.zip \
+  --key monitor-lambda/monitor_evaluator.zip
+```
+Use `--dry-run` to preview without uploading. No deletion logic runs in single-file mode.
 
 ## Keeping this file current
 
