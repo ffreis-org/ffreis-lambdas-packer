@@ -20,9 +20,15 @@ type options struct {
 	bucket      string
 	prefix      string
 	artifactDir string
+	file        string
+	key         string
 	region      string
 	dryRun      bool
 	noDelete    bool
+}
+
+func (o options) singleFileMode() bool {
+	return o.file != "" || o.key != ""
 }
 
 func main() {
@@ -44,6 +50,32 @@ func run(args []string) int {
 		return 1
 	}
 
+	s3Client := s3.NewFromConfig(awsCfg)
+
+	if opts.singleFileMode() {
+		return runSingleFile(ctx, s3Client, opts)
+	}
+	return runSync(ctx, s3Client, opts)
+}
+
+func runSingleFile(ctx context.Context, s3Client *s3.Client, opts options) int {
+	if opts.dryRun {
+		writeLine(os.Stdout, cliName+" (dry-run)")
+		writeLine(os.Stdout, labelBucket+": "+opts.bucket)
+		writeLine(os.Stdout, "key: "+opts.key)
+		writeLine(os.Stdout, "file: "+opts.file)
+		return 0
+	}
+	art := packer.LocalArtifact{Function: opts.key, ZipPath: opts.file, Key: opts.key}
+	if err := packer.PutArtifact(ctx, s3Client, opts.bucket, art); err != nil {
+		writeErrorLine(os.Stderr, "upload failed: ", err)
+		return 1
+	}
+	writeLine(os.Stdout, "uploaded: s3://"+opts.bucket+"/"+opts.key)
+	return 0
+}
+
+func runSync(ctx context.Context, s3Client *s3.Client, opts options) int {
 	prefix, err := packer.NormalizePrefix(opts.prefix)
 	if err != nil {
 		writeLine(os.Stderr, err.Error())
@@ -56,7 +88,6 @@ func run(args []string) int {
 		return 1
 	}
 
-	s3Client := s3.NewFromConfig(awsCfg)
 	remote, err := packer.ListRemoteZips(ctx, s3Client, opts.bucket, prefix)
 	if err != nil {
 		writeErrorLine(os.Stderr, "failed listing s3://"+opts.bucket+"/"+prefix+": ", err)
@@ -91,11 +122,13 @@ func parseArgs(args []string) (options, error) {
 	fs.SetOutput(io.Discard)
 
 	fs.StringVar(&opts.bucket, flagBucket, "", "S3 bucket name (required)")
-	fs.StringVar(&opts.prefix, flagPrefix, "", "S3 key prefix (required, non-empty; e.g. lambdas/dev/)")
-	fs.StringVar(&opts.artifactDir, flagArtifactDir, "lambdas/target/lambda", "Artifact dir containing */bootstrap.zip or */bootstrap")
+	fs.StringVar(&opts.prefix, flagPrefix, "", "S3 key prefix for sync mode (e.g. lambdas/dev/); required unless --file/--key are set")
+	fs.StringVar(&opts.artifactDir, flagArtifactDir, "lambdas/target/lambda", "Artifact dir containing */bootstrap.zip or */bootstrap (sync mode)")
+	fs.StringVar(&opts.file, flagFile, "", "Local zip file to upload (single-file mode; requires --key)")
+	fs.StringVar(&opts.key, flagKey, "", "Exact S3 key for the upload (single-file mode; requires --file)")
 	fs.StringVar(&opts.region, flagRegion, "", "AWS region override (optional)")
 	fs.BoolVar(&opts.dryRun, flagDryRun, false, "Print planned actions without changing S3")
-	fs.BoolVar(&opts.noDelete, flagNoDelete, false, "Upload/update only (do not delete remote extras)")
+	fs.BoolVar(&opts.noDelete, flagNoDelete, false, "Upload/update only (do not delete remote extras; sync mode only)")
 
 	if err := fs.Parse(args); err != nil {
 		return options{}, err
@@ -104,8 +137,15 @@ func parseArgs(args []string) (options, error) {
 	if opts.bucket == "" {
 		return options{}, fmt.Errorf("--bucket is required")
 	}
-	if opts.prefix == "" {
-		return options{}, fmt.Errorf("--prefix is required and must be non-empty")
+	if opts.file != "" || opts.key != "" {
+		if opts.file == "" {
+			return options{}, fmt.Errorf("--file is required when --key is set")
+		}
+		if opts.key == "" {
+			return options{}, fmt.Errorf("--key is required when --file is set")
+		}
+	} else if opts.prefix == "" {
+		return options{}, fmt.Errorf("--prefix is required for sync mode (or use --file + --key for single-file upload)")
 	}
 	return opts, nil
 }

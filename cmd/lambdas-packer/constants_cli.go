@@ -6,6 +6,8 @@ const (
 	flagBucket      = "bucket"
 	flagPrefix      = "prefix"
 	flagArtifactDir = "artifact-dir"
+	flagFile        = "file"
+	flagKey         = "key"
 	flagRegion      = "region"
 	flagDryRun      = "dry-run"
 	flagNoDelete    = "no-delete"

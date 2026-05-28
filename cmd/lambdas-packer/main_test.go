@@ -29,6 +29,35 @@ func TestParseArgs_RequiresPrefix(t *testing.T) {
 	}
 }
 
+func TestParseArgs_SingleFileModeRequiresBothFlags(t *testing.T) {
+	t.Parallel()
+
+	_, err := parseArgs([]string{"--bucket", "b", "--file", "x.zip"})
+	if err == nil || !strings.Contains(err.Error(), "--key is required") {
+		t.Fatalf("err = %v, want --key is required", err)
+	}
+
+	_, err = parseArgs([]string{"--bucket", "b", "--key", "foo/x.zip"})
+	if err == nil || !strings.Contains(err.Error(), "--file is required") {
+		t.Fatalf("err = %v, want --file is required", err)
+	}
+}
+
+func TestParseArgs_SingleFileModeSuccess(t *testing.T) {
+	t.Parallel()
+
+	opts, err := parseArgs([]string{"--bucket", "b", "--file", "dist/x.zip", "--key", "monitor-lambda/x.zip"})
+	if err != nil {
+		t.Fatalf("parseArgs error = %v", err)
+	}
+	if !opts.singleFileMode() {
+		t.Fatal("expected singleFileMode to be true")
+	}
+	if opts.file != "dist/x.zip" || opts.key != "monitor-lambda/x.zip" {
+		t.Fatalf("unexpected opts: %#v", opts)
+	}
+}
+
 func TestParseArgs_Success(t *testing.T) {
 	t.Parallel()
 
