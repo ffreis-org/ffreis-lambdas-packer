@@ -15,10 +15,10 @@ the prefix).
 
 - **Idempotent.** Safe to re-run. Unchanged artifacts are skipped (content hash check).
 
-- **Used by `ffreis-website-lambdas-rust`** via `make upload` (either as Go binary or
+- **Used by the website Lambdas repo** via `make upload` (either as Go binary or
   via Docker using `CONTAINER_RUNTIME`).
 
-- **Used by `platform-shared-infra`** to manage Lambda artifact packages for the
+- **Used by a private platform repo** to manage Lambda artifact packages for the
   shared form-handling Lambdas.
 
 ## Build/run
