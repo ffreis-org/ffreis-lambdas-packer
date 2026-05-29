@@ -7,7 +7,7 @@ This repo provides `lambdas-packer`, a Go CLI that:
 
 ### Usage
 
-Build your lambdas (example from `ffreis-website-lambdas-rust2`):
+Build your lambdas (example from a private consumer repo):
 
 ```bash
 make package
