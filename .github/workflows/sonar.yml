@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 9 * * 1" # Mondays 09:00 UTC
+    - cron: "26 18 28 * *"  # monthly scattered (was: 0 9 * * 1)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,6 +17,7 @@ jobs:
   sonar:
     name: SonarCloud
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     # Set repository variable SONAR_ENABLED=false to skip this job entirely.
