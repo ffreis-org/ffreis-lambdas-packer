@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "0 2 * * 0" # Sundays 02:00 UTC
+    - cron: "40 9 11 * *"  # monthly scattered (was: 0 2 * * 0)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
