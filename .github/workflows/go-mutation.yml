@@ -3,6 +3,7 @@ name: Go Mutation (lambdas-packer)
 on:
   workflow_dispatch:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
   schedule:
     - cron: "40 9 11 * *"  # monthly scattered (was: 0 2 * * 0)
