@@ -27,14 +27,14 @@ jobs:
   fmt:
     permissions:
       contents: read
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-fmt.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-fmt.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     with:
       working-directory: .
 
   lint:
     permissions:
       contents: read
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-lint.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-lint.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     needs: [fmt]
     with:
       working-directory: .
@@ -42,7 +42,7 @@ jobs:
   test:
     permissions:
       contents: read
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-test.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-test.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     needs: [fmt]
     with:
       working-directory: .
@@ -52,7 +52,7 @@ jobs:
   build:
     permissions:
       contents: read
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-build.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-build.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     needs: [fmt]
     with:
       working-directory: .
@@ -60,7 +60,7 @@ jobs:
   coverage:
     permissions:
       contents: read
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-coverage.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-coverage.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     needs: [test]
     with:
       working-directory: .
@@ -69,7 +69,7 @@ jobs:
   docs:
     permissions:
       contents: read
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-docs.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-docs.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     needs: [fmt]
     with:
       working-directory: .
@@ -80,7 +80,7 @@ jobs:
       contents: read
       actions: read
       security-events: write
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-security.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-security.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     with:
       working-directory: .
 
@@ -89,6 +89,6 @@ jobs:
       contents: read
       actions: read
       security-events: write
-    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-semgrep.yml@ed2f7d29467bf1fd6ec40df3953b3ee128ba3f04
+    uses: FelipeFuhr/ffreis-workflows-go/.github/workflows/go-semgrep.yml@caa797cc7baec52e99f21b86f532a4b7c88cf4fa # fix/grype-install-outside-scan-path
     with:
       working-directory: .
