@@ -1,3 +1,7 @@
+<!-- ffreis-badges:start -->
+[![CI](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FelipeFuhr/ffreis-badges/main/badges/ffreis-lambdas-packer/ci.json)](https://github.com/FelipeFuhr/ffreis-lambdas-packer/actions)
+<!-- ffreis-badges:end -->
+
 ## lambdas-packer
 
 This repo provides `lambdas-packer`, a Go CLI that:
